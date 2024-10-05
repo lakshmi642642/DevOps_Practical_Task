@@ -1,0 +1,40 @@
+---
+- name: Configure web server
+  hosts: webserver
+  become: yes
+
+  tasks:
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+
+    - name: Start Nginx service
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Copy Node.js application files
+      copy:
+        src: ../node_app/
+        dest: /var/www/node_app/
+
+    - name: Install Node.js
+      apt:
+        name: nodejs
+        state: present
+
+    - name: Install npm
+      apt:
+        name: npm
+        state: present
+
+    - name: Install application dependencies
+      command: npm install
+      args:
+        chdir: /var/www/node_app/
+
+    - name: Start Node.js application
+      command: nohup node app.js &
